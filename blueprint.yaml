@@ -1,0 +1,35 @@
+slug: particle-vlm-yolo-pro
+type: Tutorial
+category: "Computer Vision"
+expertiseLevel: "Intermediate"
+tags: ["Application", "Computer Vision", "Object Detection", "Edge Impulse"]
+icon: assets/vehicle-detection.png
+gitrepo: https://github.com/particle-iot/blueprint-vlm-yolo-pro
+name: "VLM YOLO Pro"
+shortDescription: Run Vision Language Models (VLM) with YOLO Pro for real-time object detection on your Tachyon device.
+version: 1.0.0
+models: []
+language: [ "Python" ]
+cloudServices:
+integrations: []
+supportedDevices:
+  - name: Tachyon
+webIdeLink: https://go.particle.io/shared_apps/6761f677ca3d870509cd4384
+webSetupLink: part.cl/setup-tachyon
+hardwareDependencies:
+  - name: Supported device
+containers: yolo-pro
+introduction: |
+  Welcome to the **VLM YOLO Pro Blueprint App** for Particle! 
+
+  This tutorial walks you through setting up and running real-time object detection using **Vision Language Models (VLM)** and **YOLO Pro** on your Linux device.
+
+description: |
+  The **VLM YOLO Pro Blueprint** provides a powerful starting point for integrating vision-based AI applications into your **Tachyon or Raspberry Pi** device. 
+  This blueprint leverages **YOLO Pro** for object detection and inference, demonstrating how to deploy real-time AI-powered vision applications at the edge.
+
+  The app processes images every 10 seconds, resizing them as needed, and sending them to a running inference API for real-time classification.
+
+additionalResources:
+  - [Tachyon Edge AI Overview](https://particle.io/tachyon)
+  - [Vision Language Models (VLM) Overview](https://docs.vlm.com)

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  inference:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./engine:/app/engine
+      - ./output:/app/output  # Maps local 'output' folder to container
+    ports:
+      - "${INFERENCE_PORT}:1337"
+    command:
+      - "--model-file"
+      - "/app/engine/${MODEL_NAME}.eim"
+      - "--run-http-server"
+      - "1337"
+
+  app:
+    build:
+      context: app
+      dockerfile: Dockerfile  # Use a separate Dockerfile for the Python app
+    depends_on:
+      - inference
+    volumes:
+      - ./output:/app/output  # Ensure this mapping exists
