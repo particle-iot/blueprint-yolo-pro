@@ -4,7 +4,6 @@ services:
   inference:
     build: .
     volumes:
-      - ./engine:/app/engine
       - ./output:/app/output  # Maps local 'output' folder to container
     ports:
       - "${INFERENCE_PORT}:1337"
@@ -15,8 +14,23 @@ services:
       - "1337"
 
   app:
-    build: app
+    devices:
+      - "/dev/video0:/dev/video0"
+      - "/dev/video1:/dev/video1"
+      - "/dev/video1:/dev/video2"
+      - "/dev/video1:/dev/video3"
+    device_cgroup_rules:
+      - 'c 81:* rmw'  # Grants read/modify/write for all video devices
+    env_file:
+      - .env  
+    environment:
+      - DISPLAY_FRAMES=1
+      - DISPLAY=${DISPLAY}  # Pass host display      
+    privileged: true
+    build: app    
     depends_on:
       - inference
     volumes:
       - ./output:/app/output  # Ensure this mapping exists
+      - "/tmp/.X11-unix:/tmp/.X11-unix"  # Allows OpenCV GUI to render on host screen
+      

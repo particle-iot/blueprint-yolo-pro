@@ -4,6 +4,8 @@ FROM public.ecr.aws/g7a8t7v6/inference-container:3a369e06ba63e0dfcfd6c01a00ee95e
 # Set working directory inside the container
 WORKDIR /app
 
+COPY engine /app/engine
+
 # Expose the inference API port
 EXPOSE 1337
 
