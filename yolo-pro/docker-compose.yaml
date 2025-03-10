@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   inference:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     volumes:
       - ./engine:/app/engine
       - ./output:/app/output  # Maps local 'output' folder to container
@@ -17,9 +15,7 @@ services:
       - "1337"
 
   app:
-    build:
-      context: app
-      dockerfile: Dockerfile  # Use a separate Dockerfile for the Python app
+    build: app
     depends_on:
       - inference
     volumes:
