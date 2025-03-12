@@ -26,6 +26,8 @@ services:
     environment:
       - DISPLAY_FRAMES=1
       - DISPLAY=${DISPLAY}  # Pass host display      
+      - CONFIG_PATH=/root/.particle/particle.config.json
+      - DISTRO_VERSIONS_PATH=/etc/particle/distro_versions.json
     privileged: true
     build: app    
     depends_on:
@@ -33,4 +35,5 @@ services:
     volumes:
       - ./output:/app/output  # Ensure this mapping exists
       - "/tmp/.X11-unix:/tmp/.X11-unix"  # Allows OpenCV GUI to render on host screen
-      
+      - /home/particle/.particle/particle.config.json:/root/.particle/particle.config.json:ro
+      - /etc/particle/distro_versions.json:/etc/particle/distro_versions.json:ro

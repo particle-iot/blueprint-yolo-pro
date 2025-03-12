@@ -1,11 +1,28 @@
+#############################################
+# Yolo-Pro getting started app
+#
+# This app reads frames from a V4L2 camera, sends them to the inference API, and saves the results.
+# The results are displayed on the frames and saved to an output video file.
+# The detected vehicles are publishing to Particle's API to send out to your cloud integration (AWS, Azure etc...)
+#
+# This app is designed to run on a Particle supported Linux device with a V4L2 camera connected (Tachyon, nVidia, Raspberry Pi etc...)
+#
+#############################################
+
 import cv2
+import json
 import time
 import requests
 import os
 import signal
+import base64
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from sort import Sort  # Import SORT tracker
+from particle_linux import ParticleLinuxSDK
+
+# Initialize the SDK
+sdk = ParticleLinuxSDK()
 
 # Constants
 API_URL = "http://inference:1337/api/image"
@@ -15,10 +32,11 @@ VIDEO_FILE = os.getenv("VIDEO_FILE", "/dev/video2")  # Default to first V4L2 cam
 OUTPUT_VIDEO_PATH = os.path.join(OUTPUT_DIR, "output-annotate.mp4")  # MP4 output path
 FRAME_RATE = 30  # Frames per second for the output video
 
+# Should we display? the env tells us but also we have to check if there is a display, otherwise hide the viewfinder output
+# this works in headless mode and desktop mode alike
 DISPLAY_FRAMES = os.getenv("DISPLAY_FRAMES", "0") == "1"
-DISPLAY_AVAILABLE = "DISPLAY" in os.environ and os.environ["DISPLAY"]
 
-if DISPLAY_FRAMES and DISPLAY_AVAILABLE:
+if DISPLAY_FRAMES:
     print("✅ GUI display is available. Frames will be shown.")
 else:
     print("⚠️ No GUI display detected. Running headless.")
@@ -39,6 +57,27 @@ def resize_image(frame):
     img = Image.fromarray(frame)
     img = img.resize(TARGET_SIZE, Image.LANCZOS)
     return img
+
+def encode_image_to_data_uri(image):
+    """Convert a PIL image to a data URI encoded JPEG."""
+    image_path = "/tmp/new_car_detected.jpg"
+    image.save(image_path, format="JPEG")
+
+    with open(image_path, "rb") as img_file:
+        base64_encoded_data = base64.b64encode(img_file.read()).decode("utf-8")
+
+    return f"data:image/jpeg;base64,{base64_encoded_data}"
+
+
+def publish_new_car_event(image, obj_id):
+    """Publish the encoded image of the new detected car to Particle's platform."""
+    data_uri = encode_image_to_data_uri(image)
+    event_name = "new_car"
+    payload = {"car_id": obj_id, "image": data_uri}
+    
+    response = sdk.publish_event(event_name, json.dumps(payload))
+    print(f"Published new car event (ID: {obj_id}):", response, flush=True)
+
 
 def send_image(image):
     """Send an image to the inference API and return the response."""
@@ -62,6 +101,7 @@ def send_image(image):
         print(f"Error sending frame: {e}", flush=True)
         return None
 
+
 def draw_bounding_boxes(image, response):
     """Draw bounding boxes on the image based on API response."""
     global next_car_id, car_id_map
@@ -79,7 +119,9 @@ def draw_bounding_boxes(image, response):
         detections = np.empty((0, 5))
     
     tracked_objects = car_tracker.update(detections)
-    
+
+    cars_to_publish = []
+
     for obj in tracked_objects:
         x1, y1, x2, y2, obj_id = obj
         obj_id = int(obj_id)
@@ -88,9 +130,15 @@ def draw_bounding_boxes(image, response):
             car_id_map[obj_id] = next_car_id
             next_car_id += 1
             print(f"New car detected: ID {obj_id} - now seen {len(unique_car_ids)} using id {car_id_map[obj_id]}", flush=True)
+            #publish this car!
+            cars_to_publish.append(car_id_map[obj_id])
         draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
         draw.text((x1, y1 - 10), f"Vehicle: {car_id_map[obj_id]}", font=font, fill="red")
     
+    # Publish new car events
+    for car_id in cars_to_publish:
+        publish_new_car_event(image, car_id)
+
     return image
 
 def setup_video_writer(frame_width, frame_height):
@@ -121,7 +169,7 @@ def process_video():
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     setup_video_writer(TARGET_SIZE[0], TARGET_SIZE[1] )
 
-    print("frame_width {frame_width} frame_height {frame_height}", flush=True)
+    print(f"frame_width {frame_width} frame_height {frame_height}", flush=True)
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -142,7 +190,7 @@ def process_video():
         if video_writer is not None:
             video_writer.write(frame_with_boxes)
 
-        if DISPLAY_FRAMES and DISPLAY_AVAILABLE:
+        if DISPLAY_FRAMES:
             cv2.imshow("Live Video", frame_with_boxes)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -154,6 +202,21 @@ def process_video():
     print("Finished processing video.", flush=True)
 
 def main():
+    """Setup"""
+
+    # Print user details
+    print("User Email:", sdk.get_user_details())
+
+    # Print device info
+    device_info = sdk.get_device_info()
+    print("Device ID:", device_info.get("id", "Unknown"))
+    print("Firmware Version:", device_info.get("firmware_version", "Unknown"))
+    print("Platform ID:", device_info.get("platform_id", "Unknown"))
+
+    # Publish a "Hello World" event
+    response = sdk.publish_event("hello_world", "Hello from Python SDK!")
+    print("✅ Published event response:", response)
+
     """Start processing the video file or V4L2 camera."""
     print("Starting video processing...", flush=True)
     process_video()
