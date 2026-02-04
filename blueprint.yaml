@@ -1,16 +1,16 @@
 slug: particle-vlm-yolo-pro
 type: Tutorial
-category: "Computer Vision"
+category: "AI and machine learning"
 expertiseLevel: "Intermediate"
-tags: ["Application", "Computer Vision", "Object Detection", "Edge Impulse"]
+tags: ["AI/ML", "Containers"]
 icon: assets/vehicle-detection.png
 gitrepo: https://github.com/particle-iot/blueprint-vlm-yolo-pro
 name: "VLM YOLO Pro"
 shortDescription: Run Vision Language Models (VLM) with YOLO Pro for real-time object detection on your Tachyon device.
 version: 1.0.0
 models: []
-language: [ "Python" ]
-cloudServices:
+language: ["Python"]
+cloudServices: []
 integrations: []
 supportedDevices:
   - name: Tachyon
