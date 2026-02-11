@@ -3,7 +3,7 @@ type: Tutorial
 category: "AI and machine learning"
 expertiseLevel: "Intermediate"
 tags: ["AI/ML", "Containers"]
-icon: assets/vehicle-detection.png
+icon: assets/vlm.svg
 gitrepo: https://github.com/particle-iot/blueprint-vlm-yolo-pro
 name: "VLM YOLO Pro"
 shortDescription: Run Vision Language Models (VLM) with YOLO Pro for real-time object detection on your Tachyon device.
