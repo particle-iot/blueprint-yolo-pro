@@ -5,8 +5,8 @@ expertiseLevel: "Intermediate"
 tags: ["AI/ML", "Containers"]
 icon: assets/vlm.svg
 gitrepo: https://github.com/particle-iot/blueprint-yolo-pro
-name: "VLM YOLO Pro"
-shortDescription: Run Vision Language Models (VLM) with YOLO Pro for real-time object detection on your Tachyon device.
+name: "YOLO Pro"
+shortDescription: Run real-time object detection on your Tachyon device with YOLO-Pro.
 version: 1.0.0
 models: []
 language: ["Python"]
@@ -20,18 +20,17 @@ hardwareDependencies:
   - name: Supported device
 containers: yolo-pro
 introduction: |
-  Welcome to the **VLM YOLO Pro Blueprint App** for Particle! 
+  Welcome to the **YOLO Pro Blueprint App** for Particle! 
 
-  This tutorial walks you through setting up and running real-time object detection using **Vision Language Models (VLM)** and **YOLO Pro** on your Linux device.
+  This tutorial walks you through setting up and running real-time object detection using **YOLO Pro** on your Linux device.
 
 description: |
-  The **VLM YOLO Pro Blueprint** provides a powerful starting point for integrating vision-based AI applications into your **Tachyon or Raspberry Pi** device. 
-  This blueprint leverages **YOLO Pro** for object detection and inference, demonstrating how to deploy real-time AI-powered vision applications at the edge.
+  The **YOLO Pro Blueprint** runs real-time vehicle detection on your **Tachyon** using **Edge Impulse's YOLO-Pro** model (early beta).
+  Inference runs entirely on the device: one container serves the model, and a Python app streams frames from a USB webcam to it and draws the detected vehicles on screen.
 
-  The app processes images every 10 seconds, resizing them as needed, and sending them to a running inference API for real-time classification.
+  Each vehicle is tracked across frames, so it's counted once. When a new one appears, the app publishes a `new_car` event with a snapshot to the Particle Cloud, ready to forward to your own integrations.
+  Included models are trained for freeway traffic and garage monitoring.
 
 additionalResources:
   - title: Tachyon Edge AI Overview
     link: https://particle.io/tachyon
-  - title: Vision Language Models (VLM) Overview
-    link: https://docs.vlm.com
